@@ -23,6 +23,7 @@ from patterns.tool_sandboxing import (  # type: ignore[import-not-found]
 # SandboxLimits defaults
 # ---------------------------------------------------------------------------
 
+
 def test_sandbox_limits_defaults() -> None:
     limits = SandboxLimits()
     assert limits.cpu_seconds == 10
@@ -40,6 +41,7 @@ def test_sandbox_limits_custom() -> None:
 # _build_tool_script
 # ---------------------------------------------------------------------------
 
+
 def test_build_tool_script_contains_tool_name() -> None:
     script = _build_tool_script("my_tool", {"key": "value"}, {"my_tool": "mymodule"})
     assert "my_tool" in script
@@ -54,6 +56,7 @@ def test_build_tool_script_embeds_args() -> None:
 # ---------------------------------------------------------------------------
 # ToolSandbox — subprocess execution
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_sandbox_runs_simple_script() -> None:
@@ -92,7 +95,8 @@ print(json.dumps(result))
 
     try:
         proc = await asyncio.create_subprocess_exec(
-            sys.executable, script_path,
+            sys.executable,
+            script_path,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -118,7 +122,8 @@ async def test_sandbox_kills_on_timeout() -> None:
 
     try:
         proc = await asyncio.create_subprocess_exec(
-            sys.executable, script_path,
+            sys.executable,
+            script_path,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )
@@ -135,6 +140,7 @@ async def test_sandbox_kills_on_timeout() -> None:
 # ---------------------------------------------------------------------------
 # MultiTenantSandbox — policy enforcement
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_multitenant_sandbox_blocks_forbidden_tool() -> None:
@@ -175,11 +181,16 @@ async def test_multitenant_sandbox_allows_allowlisted_tool() -> None:
 
     # Mock the actual subprocess execution
     with patch.object(
-        ToolSandbox, "run",
+        ToolSandbox,
+        "run",
         new_callable=AsyncMock,
         return_value=SandboxResult(
-            success=True, output={"ok": True}, exit_code=0,
-            stderr="", cpu_seconds_used=0.0, wall_time_seconds=0.01,
+            success=True,
+            output={"ok": True},
+            exit_code=0,
+            stderr="",
+            cpu_seconds_used=0.0,
+            wall_time_seconds=0.01,
         ),
     ):
         result = await sandbox.run("read_file", {"path": "/tmp/x"}, tenant_id="t")

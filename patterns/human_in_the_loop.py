@@ -74,9 +74,7 @@ class ApprovalRequest:
     tenant_id: str
     request_id: str = field(default_factory=lambda: str(uuid.uuid4()))
     created_at: float = field(default_factory=time.time)
-    expires_at: float = field(
-        default_factory=lambda: time.time() + _REQUEST_TTL_SECONDS
-    )
+    expires_at: float = field(default_factory=lambda: time.time() + _REQUEST_TTL_SECONDS)
     metadata: dict[str, Any] = field(default_factory=dict)
     status: ApprovalStatus = ApprovalStatus.PENDING
 
@@ -128,13 +126,11 @@ class HITLQueue:
 
     def __init__(self, redis_url: str = "redis://localhost:6379") -> None:
         self._redis_url = redis_url
-        self._client: aioredis.Redis | None = None  # type: ignore[type-arg]
+        self._client: aioredis.Redis | None = None
 
-    async def _get_client(self) -> aioredis.Redis:  # type: ignore[type-arg]
+    async def _get_client(self) -> aioredis.Redis:
         if self._client is None:
-            self._client = await aioredis.from_url(
-                self._redis_url, decode_responses=True
-            )
+            self._client = await aioredis.from_url(self._redis_url, decode_responses=True)
         return self._client
 
     def _queue_key(self, tenant_id: str) -> str:
@@ -153,7 +149,7 @@ class HITLQueue:
             The ``request_id`` for polling.
         """
         client = await self._get_client()
-        await client.lpush(self._queue_key(request.tenant_id), request.to_json())
+        await client.lpush(self._queue_key(request.tenant_id), request.to_json())  # type: ignore[misc]
         # Also store by request_id for direct lookup
         await client.setex(
             f"mcp:hitl:req:{request.request_id}",
@@ -172,7 +168,7 @@ class HITLQueue:
             List of :class:`ApprovalRequest` objects.
         """
         client = await self._get_client()
-        raw_items: list[str] = await client.lrange(
+        raw_items: list[str] = await client.lrange(  # type: ignore[misc]
             self._queue_key(tenant_id), 0, -1
         )
         requests = []
@@ -202,9 +198,7 @@ class HITLQueue:
             }
         )
         # Publish via Redis pub/sub so awaiting agents are notified immediately
-        await client.publish(
-            self._decision_key(decision.request_id), decision_data
-        )
+        await client.publish(self._decision_key(decision.request_id), decision_data)
         # Also persist for polling fallback
         await client.setex(
             self._decision_key(decision.request_id),
@@ -268,7 +262,7 @@ class HITLQueue:
                 await asyncio.sleep(_POLL_INTERVAL)
         finally:
             await pubsub.unsubscribe(channel)
-            await pubsub.aclose()
+            await pubsub.aclose()  # type: ignore[no-untyped-call]
 
         msg = f"No decision received for request '{request_id}' within {timeout}s"
         raise TimeoutError(msg)
@@ -353,9 +347,7 @@ class HITLGateway:
         request_id = await self._queue.enqueue(request)
 
         # Block until human decides
-        decision = await self._queue.poll_decision(
-            request_id, timeout=self._approval_timeout
-        )
+        decision = await self._queue.poll_decision(request_id, timeout=self._approval_timeout)
 
         if decision.status == ApprovalStatus.APPROVED:
             return {"status": "approved", "request_id": request_id, "tool": tool_name}

@@ -94,9 +94,7 @@ class SecretStore(ABC):
     """Abstract store for tenant OAuth2 client credentials."""
 
     @abstractmethod
-    async def get_client_credentials(
-        self, tenant_id: str
-    ) -> tuple[str, str, str]:
+    async def get_client_credentials(self, tenant_id: str) -> tuple[str, str, str]:
         """Return (client_id, client_secret, token_url) for a tenant."""
 
 
@@ -118,9 +116,7 @@ class EnvSecretStore(SecretStore):
         # Pre-loaded credentials for testing; production uses env vars
         self._credentials = credentials or {}
 
-    async def get_client_credentials(
-        self, tenant_id: str
-    ) -> tuple[str, str, str]:
+    async def get_client_credentials(self, tenant_id: str) -> tuple[str, str, str]:
         cred = self._credentials.get(tenant_id)
         if cred:
             return cred.client_id, cred.client_secret, cred.token_url
@@ -156,9 +152,7 @@ class OAuthTokenInjector:
         self._secret_store = secret_store
         self._http = http_client
 
-    async def get_token(
-        self, tenant_id: str, scopes: list[str]
-    ) -> OAuthToken:
+    async def get_token(self, tenant_id: str, scopes: list[str]) -> OAuthToken:
         """Return a valid token, fetching a new one if needed.
 
         Args:
@@ -175,8 +169,8 @@ class OAuthTokenInjector:
         if cached:
             return cached
 
-        client_id, client_secret, token_url = (
-            await self._secret_store.get_client_credentials(tenant_id)
+        client_id, client_secret, token_url = await self._secret_store.get_client_credentials(
+            tenant_id
         )
 
         if self._http is None:
@@ -302,11 +296,7 @@ class ZeroTrustGateway:
         )
 
         # Build clean headers — strip any forwarded Authorization header
-        clean_headers = {
-            k: v
-            for k, v in request.headers.items()
-            if k.lower() != "authorization"
-        }
+        clean_headers = {k: v for k, v in request.headers.items() if k.lower() != "authorization"}
         clean_headers["Authorization"] = f"Bearer {token.access_token}"
         clean_headers["X-Tenant-ID"] = identity.tenant_id
         clean_headers["X-Agent-ID"] = identity.agent_id

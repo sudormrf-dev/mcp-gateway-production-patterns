@@ -100,7 +100,7 @@ class VaultSecretProvider(SecretProvider):
         """Lazily initialise hvac client."""
         if self._client is None:
             try:
-                import hvac  # type: ignore[import-not-found]  # noqa: PLC0415
+                import hvac
             except ImportError as exc:
                 msg = "hvac not installed: pip install hvac"
                 raise ImportError(msg) from exc

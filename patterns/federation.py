@@ -77,13 +77,11 @@ class NodeRegistry:
 
     def __init__(self, redis_url: str = "redis://localhost:6379") -> None:
         self._redis_url = redis_url
-        self._client: aioredis.Redis | None = None  # type: ignore[type-arg]
+        self._client: aioredis.Redis | None = None
 
-    async def _get_client(self) -> aioredis.Redis:  # type: ignore[type-arg]
+    async def _get_client(self) -> aioredis.Redis:
         if self._client is None:
-            self._client = await aioredis.from_url(
-                self._redis_url, decode_responses=True
-            )
+            self._client = await aioredis.from_url(self._redis_url, decode_responses=True)
         return self._client
 
     async def discover(self, tenant_id: str | None = None) -> list[NodeInfo]:
@@ -167,14 +165,12 @@ class FederatedNode:
             metadata=metadata or {},
         )
         self._redis_url = redis_url
-        self._client: aioredis.Redis | None = None  # type: ignore[type-arg]
+        self._client: aioredis.Redis | None = None
         self._heartbeat_task: asyncio.Task[None] | None = None
 
     async def start(self) -> None:
         """Register node and start heartbeat loop."""
-        self._client = await aioredis.from_url(
-            self._redis_url, decode_responses=True
-        )
+        self._client = await aioredis.from_url(self._redis_url, decode_responses=True)
         await self._register()
         self._heartbeat_task = asyncio.create_task(self._heartbeat_loop())
 
@@ -224,7 +220,7 @@ class FederatedNode:
             await asyncio.sleep(_HEARTBEAT_INTERVAL)
             try:
                 await self._register()
-            except Exception:  # noqa: BLE001
+            except Exception:
                 # Best-effort: don't crash the heartbeat on transient Redis errors
                 pass
 

@@ -43,9 +43,7 @@ async def simulate_agent(gateway: HITLGateway) -> None:
 
     # Non-critical tool — instant
     print("Agent: calling 'read_file' (non-critical)...")
-    result = await gateway.call_tool(
-        "read_file", {"path": "/data/report.csv"}, agent_id, tenant_id
-    )
+    result = await gateway.call_tool("read_file", {"path": "/data/report.csv"}, agent_id, tenant_id)
     print(f"  → {result}")
 
     # Critical tool — requires approval

@@ -22,6 +22,7 @@ from patterns.secret_vaulting import (  # type: ignore[import-not-found]
 # EnvSecretProvider
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_env_provider_reads_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("MCP_SECRET_DB__PROD__PASSWORD", "super-secret")
@@ -48,6 +49,7 @@ async def test_env_provider_dotted_path(monkeypatch: pytest.MonkeyPatch) -> None
 # ---------------------------------------------------------------------------
 # SecretInjector — caching
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_injector_caches_secret() -> None:
@@ -131,6 +133,7 @@ async def test_injector_expired_cache_refetches() -> None:
 # VaultSecretProvider — import guard
 # ---------------------------------------------------------------------------
 
+
 def test_vault_provider_raises_on_missing_hvac() -> None:
     """VaultSecretProvider raises ImportError if hvac is not installed."""
     with patch("builtins.__import__", side_effect=ImportError("no module named hvac")):
@@ -142,15 +145,18 @@ def test_vault_provider_raises_on_missing_hvac() -> None:
 # SOPSSecretProvider
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_sops_provider_parses_decrypted_output() -> None:
     """SOPSSecretProvider correctly parses sops --decrypt output."""
     import json
 
-    decrypted = json.dumps({
-        "database": {"password": "db-secret-123"},
-        "api_key": "api-abc",
-    })
+    decrypted = json.dumps(
+        {
+            "database": {"password": "db-secret-123"},
+            "api_key": "api-abc",
+        }
+    )
 
     with patch("subprocess.run") as mock_run:
         mock_result = MagicMock()
@@ -186,6 +192,7 @@ async def test_sops_provider_raises_for_missing_key() -> None:
 # ---------------------------------------------------------------------------
 # build_injector_from_env
 # ---------------------------------------------------------------------------
+
 
 def test_build_injector_uses_env_provider_as_fallback(
     monkeypatch: pytest.MonkeyPatch,

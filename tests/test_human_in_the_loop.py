@@ -22,6 +22,7 @@ from patterns.human_in_the_loop import (  # type: ignore[import-not-found]
 # ApprovalRequest
 # ---------------------------------------------------------------------------
 
+
 def test_approval_request_not_expired() -> None:
     req = ApprovalRequest(
         tool_name="delete_file",
@@ -64,6 +65,7 @@ def test_approval_request_serialization() -> None:
 # ---------------------------------------------------------------------------
 # HITLGateway — non-critical tool (fast path)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_non_critical_tool_executes_immediately() -> None:

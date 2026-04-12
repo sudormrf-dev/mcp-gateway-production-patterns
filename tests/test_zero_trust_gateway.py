@@ -26,6 +26,7 @@ from patterns.zero_trust_gateway import (  # type: ignore[import-not-found]
 # InMemoryTokenStore
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_token_store_miss_on_empty() -> None:
     store = InMemoryTokenStore()
@@ -80,6 +81,7 @@ def test_token_is_invalid_near_expiry() -> None:
 # EnvSecretStore
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_env_secret_store_with_preloaded_credentials() -> None:
     store = EnvSecretStore(
@@ -108,6 +110,7 @@ async def test_env_secret_store_raises_for_missing_tenant() -> None:
 # OAuthTokenInjector
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_injector_uses_cached_token() -> None:
     """Token injector returns cached token without calling the OAuth endpoint."""
@@ -123,9 +126,7 @@ async def test_injector_uses_cached_token() -> None:
 
     mock_http = AsyncMock()
     secret_store = EnvSecretStore(
-        credentials={
-            "acme": _ClientCredentials("cid", "csec", "https://auth.example.com/token")
-        }
+        credentials={"acme": _ClientCredentials("cid", "csec", "https://auth.example.com/token")}
     )
     injector = OAuthTokenInjector(store, secret_store, http_client=mock_http)
 
@@ -142,17 +143,18 @@ async def test_injector_fetches_on_cache_miss() -> None:
     mock_response = AsyncMock()
     mock_response.raise_for_status = AsyncMock()
     from unittest.mock import MagicMock
-    mock_response.json = MagicMock(return_value={
-        "access_token": "fresh-token",
-        "expires_in": 900,
-        "scope": "mcp:read",
-    })
+
+    mock_response.json = MagicMock(
+        return_value={
+            "access_token": "fresh-token",
+            "expires_in": 900,
+            "scope": "mcp:read",
+        }
+    )
     mock_http.post.return_value = mock_response
 
     secret_store = EnvSecretStore(
-        credentials={
-            "acme": _ClientCredentials("cid", "csec", "https://auth.example.com/token")
-        }
+        credentials={"acme": _ClientCredentials("cid", "csec", "https://auth.example.com/token")}
     )
     injector = OAuthTokenInjector(store, secret_store, http_client=mock_http)
 
@@ -164,6 +166,7 @@ async def test_injector_fetches_on_cache_miss() -> None:
 # ---------------------------------------------------------------------------
 # ZeroTrustGateway
 # ---------------------------------------------------------------------------
+
 
 def _make_identity(
     scopes: list[str] | None = None,
@@ -201,9 +204,7 @@ async def test_gateway_strips_auth_header() -> None:
     """Gateway replaces any existing Authorization header with a fresh token."""
     store = InMemoryTokenStore()
     # Pre-populate cache so no HTTP call needed
-    await store.put(
-        OAuthToken("new-tok", "Bearer", time.time() + 900, ["mcp:tools"], "acme")
-    )
+    await store.put(OAuthToken("new-tok", "Bearer", time.time() + 900, ["mcp:tools"], "acme"))
 
     mock_http = AsyncMock()
     mock_response = AsyncMock()
@@ -232,7 +233,9 @@ async def test_gateway_strips_auth_header() -> None:
 
     # Verify the Authorization header sent to upstream is NOT the old one
     call_kwargs = mock_http.request.call_args
-    headers_sent = call_kwargs.kwargs.get("headers", {}) or call_kwargs.args[2] if call_kwargs.args else {}
+    headers_sent = (
+        call_kwargs.kwargs.get("headers", {}) or call_kwargs.args[2] if call_kwargs.args else {}
+    )
     auth_sent = call_kwargs.kwargs.get("headers", {}).get("Authorization", "")
     assert "old-leaked-token" not in auth_sent
     assert "new-tok" in auth_sent
@@ -242,9 +245,7 @@ async def test_gateway_strips_auth_header() -> None:
 async def test_gateway_injects_tenant_header() -> None:
     """Gateway adds X-Tenant-ID and X-Agent-ID headers."""
     store = InMemoryTokenStore()
-    await store.put(
-        OAuthToken("tok", "Bearer", time.time() + 900, ["mcp:tools"], "acme")
-    )
+    await store.put(OAuthToken("tok", "Bearer", time.time() + 900, ["mcp:tools"], "acme"))
 
     mock_http = AsyncMock()
     mock_response = AsyncMock()

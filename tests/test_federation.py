@@ -26,6 +26,7 @@ from patterns.federation import (  # type: ignore[import-not-found]
 # NodeInfo serialization
 # ---------------------------------------------------------------------------
 
+
 def test_node_info_round_trip() -> None:
     """NodeInfo serializes and deserializes correctly."""
     node = NodeInfo(
@@ -45,14 +46,16 @@ def test_node_info_round_trip() -> None:
 
 def test_node_info_from_json_minimal() -> None:
     """NodeInfo.from_json handles minimal required fields."""
-    raw = json.dumps({
-        "node_id": "n1",
-        "url": "http://localhost:8000",
-        "tools": [],
-        "tenant_id": "test",
-        "registered_at": time.time(),
-        "metadata": {},
-    })
+    raw = json.dumps(
+        {
+            "node_id": "n1",
+            "url": "http://localhost:8000",
+            "tools": [],
+            "tenant_id": "test",
+            "registered_at": time.time(),
+            "metadata": {},
+        }
+    )
     node = NodeInfo.from_json(raw)
     assert node.node_id == "n1"
     assert node.tools == []
@@ -61,6 +64,7 @@ def test_node_info_from_json_minimal() -> None:
 # ---------------------------------------------------------------------------
 # NodeRegistry with mocked Redis
 # ---------------------------------------------------------------------------
+
 
 def _make_mock_registry(live_nodes: list[NodeInfo]) -> NodeRegistry:
     """Create a NodeRegistry backed by a mock Redis client."""
@@ -75,9 +79,7 @@ def _make_mock_registry(live_nodes: list[NodeInfo]) -> NodeRegistry:
         # zremrangebyscore — prune expired (no-op for live nodes)
         mock_client.zremrangebyscore = AsyncMock(return_value=0)
         # zrange — return serialized live nodes
-        mock_client.zrange = AsyncMock(
-            return_value=[n.to_json() for n in live_nodes]
-        )
+        mock_client.zrange = AsyncMock(return_value=[n.to_json() for n in live_nodes])
         mock_client.zadd = AsyncMock(return_value=1)
         mock_client.aclose = AsyncMock()
         return mock_client
@@ -149,6 +151,7 @@ async def test_find_tool_owner_not_found() -> None:
 # FederationRouter
 # ---------------------------------------------------------------------------
 
+
 @pytest.mark.asyncio
 async def test_router_resolves_url() -> None:
     """FederationRouter.resolve returns the URL of the owning node."""
@@ -173,6 +176,7 @@ async def test_router_raises_on_missing_tool() -> None:
 # ---------------------------------------------------------------------------
 # FederatedNode heartbeat (lightweight)
 # ---------------------------------------------------------------------------
+
 
 @pytest.mark.asyncio
 async def test_federated_node_registers_on_start() -> None:

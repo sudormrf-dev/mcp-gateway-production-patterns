@@ -73,6 +73,7 @@ def _check_rate_limit(tenant_id: str, limit_rpm: int) -> bool:
 # Replace with real JWT validation in production
 # ---------------------------------------------------------------------------
 
+
 class MultiTenantTokenVerifier(TokenVerifier):
     """Verify tokens in format ``tenant:{tenant_id}`` for demo purposes.
 

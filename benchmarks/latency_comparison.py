@@ -67,6 +67,7 @@ def _compute_result(name: str, timings_ms: list[float]) -> BenchmarkResult:
 # Simulated tool and gateway implementations for benchmarking
 # ---------------------------------------------------------------------------
 
+
 async def _direct_tool_call(tool_name: str, args: dict[str, Any]) -> dict[str, Any]:
     """Simulate a direct MCP tool call (no gateway overhead)."""
     # Simulate minimal I/O work
@@ -84,6 +85,7 @@ async def _gateway_passthrough(tool_name: str, args: dict[str, Any]) -> dict[str
 
 class _MockTokenCache:
     """Simulates token cache hit/miss behavior."""
+
     def __init__(self, hit_rate: float = 0.0) -> None:
         self._hit_rate = hit_rate
         self._calls = 0
@@ -122,6 +124,7 @@ async def _zero_trust_gateway(
 # ---------------------------------------------------------------------------
 # Benchmark runners
 # ---------------------------------------------------------------------------
+
 
 async def benchmark_direct(n: int = 500) -> BenchmarkResult:
     """Benchmark direct tool calls with no gateway overhead."""
@@ -180,7 +183,9 @@ async def benchmark_sandbox_spawn(n: int = 20) -> BenchmarkResult:
     for _ in range(n):
         t0 = time.perf_counter()
         proc = await asyncio.create_subprocess_exec(
-            sys.executable, "-c", "import json; print(json.dumps({'ok': True}))",
+            sys.executable,
+            "-c",
+            "import json; print(json.dumps({'ok': True}))",
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
         )

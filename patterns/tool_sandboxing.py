@@ -74,9 +74,7 @@ class SandboxResult:
     killed: bool = False
 
 
-def _apply_resource_limits(
-    cpu_seconds: int, memory_mb: int
-) -> None:
+def _apply_resource_limits(cpu_seconds: int, memory_mb: int) -> None:
     """Set POSIX resource limits in the child process.
 
     Called as ``preexec_fn`` in :func:`asyncio.create_subprocess_exec`.
