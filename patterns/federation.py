@@ -77,9 +77,9 @@ class NodeRegistry:
 
     def __init__(self, redis_url: str = "redis://localhost:6379") -> None:
         self._redis_url = redis_url
-        self._client: aioredis.Redis | None = None
+        self._client: aioredis.Redis[Any] | None = None
 
-    async def _get_client(self) -> aioredis.Redis:
+    async def _get_client(self) -> aioredis.Redis[Any]:
         if self._client is None:
             self._client = await aioredis.from_url(self._redis_url, decode_responses=True)
         return self._client
@@ -132,7 +132,7 @@ class NodeRegistry:
     async def close(self) -> None:
         """Close the Redis connection."""
         if self._client:
-            await self._client.aclose()
+            await self._client.close()
             self._client = None
 
 
@@ -165,7 +165,7 @@ class FederatedNode:
             metadata=metadata or {},
         )
         self._redis_url = redis_url
-        self._client: aioredis.Redis | None = None
+        self._client: aioredis.Redis[Any] | None = None
         self._heartbeat_task: asyncio.Task[None] | None = None
 
     async def start(self) -> None:
@@ -185,7 +185,7 @@ class FederatedNode:
 
         if self._client:
             await self._deregister()
-            await self._client.aclose()
+            await self._client.close()
 
     async def _register(self) -> None:
         """Add this node to the sorted set with TTL as score."""

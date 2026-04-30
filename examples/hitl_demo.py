@@ -20,7 +20,7 @@ import asyncio
 import logging
 import time
 
-from patterns.human_in_the_loop import (  # type: ignore[import-not-found]
+from patterns.human_in_the_loop import (
     ApprovalDecision,
     ApprovalStatus,
     HITLGateway,

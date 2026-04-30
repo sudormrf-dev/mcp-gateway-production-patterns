@@ -16,7 +16,7 @@ from __future__ import annotations
 import asyncio
 import logging
 
-from patterns.federation import (  # type: ignore[import-not-found]
+from patterns.federation import (
     FederatedNode,
     FederationRouter,
     NodeRegistry,

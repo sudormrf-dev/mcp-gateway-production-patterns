@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from patterns.secret_vaulting import (  # type: ignore[import-not-found]
+from patterns.secret_vaulting import (
     EnvSecretProvider,
     SecretInjector,
     SOPSSecretProvider,

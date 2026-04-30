@@ -126,9 +126,9 @@ class HITLQueue:
 
     def __init__(self, redis_url: str = "redis://localhost:6379") -> None:
         self._redis_url = redis_url
-        self._client: aioredis.Redis | None = None
+        self._client: aioredis.Redis[Any] | None = None
 
-    async def _get_client(self) -> aioredis.Redis:
+    async def _get_client(self) -> aioredis.Redis[Any]:
         if self._client is None:
             self._client = await aioredis.from_url(self._redis_url, decode_responses=True)
         return self._client
@@ -149,7 +149,7 @@ class HITLQueue:
             The ``request_id`` for polling.
         """
         client = await self._get_client()
-        await client.lpush(self._queue_key(request.tenant_id), request.to_json())  # type: ignore[misc]
+        await client.lpush(self._queue_key(request.tenant_id), request.to_json())
         # Also store by request_id for direct lookup
         await client.setex(
             f"mcp:hitl:req:{request.request_id}",
@@ -168,7 +168,7 @@ class HITLQueue:
             List of :class:`ApprovalRequest` objects.
         """
         client = await self._get_client()
-        raw_items: list[str] = await client.lrange(  # type: ignore[misc]
+        raw_items: list[str] = await client.lrange(
             self._queue_key(tenant_id), 0, -1
         )
         requests = []
@@ -262,7 +262,7 @@ class HITLQueue:
                 await asyncio.sleep(_POLL_INTERVAL)
         finally:
             await pubsub.unsubscribe(channel)
-            await pubsub.aclose()  # type: ignore[no-untyped-call]
+            await pubsub.close()
 
         msg = f"No decision received for request '{request_id}' within {timeout}s"
         raise TimeoutError(msg)
@@ -270,7 +270,7 @@ class HITLQueue:
     async def close(self) -> None:
         """Close the Redis connection."""
         if self._client:
-            await self._client.aclose()
+            await self._client.close()
             self._client = None
 
 

@@ -15,7 +15,7 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from patterns.federation import (  # type: ignore[import-not-found]
+from patterns.federation import (
     FederatedNode,
     FederationRouter,
     NodeInfo,
@@ -72,8 +72,6 @@ def _make_mock_registry(live_nodes: list[NodeInfo]) -> NodeRegistry:
     registry._redis_url = "redis://mock"
     registry._client = None
 
-    now = time.time()
-
     async def fake_get_client():
         mock_client = AsyncMock()
         # zremrangebyscore — prune expired (no-op for live nodes)
@@ -84,7 +82,7 @@ def _make_mock_registry(live_nodes: list[NodeInfo]) -> NodeRegistry:
         mock_client.aclose = AsyncMock()
         return mock_client
 
-    registry._get_client = fake_get_client
+    registry._get_client = fake_get_client  # type: ignore[method-assign]
     return registry
 
 

@@ -11,7 +11,7 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from patterns.zero_trust_gateway import (  # type: ignore[import-not-found]
+from patterns.zero_trust_gateway import (
     AgentIdentity,
     EnvSecretStore,
     GatewayRequest,
@@ -233,9 +233,6 @@ async def test_gateway_strips_auth_header() -> None:
 
     # Verify the Authorization header sent to upstream is NOT the old one
     call_kwargs = mock_http.request.call_args
-    headers_sent = (
-        call_kwargs.kwargs.get("headers", {}) or call_kwargs.args[2] if call_kwargs.args else {}
-    )
     auth_sent = call_kwargs.kwargs.get("headers", {}).get("Authorization", "")
     assert "old-leaked-token" not in auth_sent
     assert "new-tok" in auth_sent

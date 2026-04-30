@@ -263,4 +263,4 @@ if __name__ == "__main__":
     log.info("Starting multi-tenant MCP server on port %d", port)
     log.info("Tenants: %s", list(_TENANTS.keys()))
     log.info("Test with: MCP_TENANT_ID=acme token=tenant:acme")
-    uvicorn.run(mcp.get_asgi_app(), host="0.0.0.0", port=port)
+    uvicorn.run(mcp.get_asgi_app(), host="0.0.0.0", port=port)  # type: ignore[attr-defined]  # nosec B104

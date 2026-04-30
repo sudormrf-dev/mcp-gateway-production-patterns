@@ -11,7 +11,7 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from patterns.human_in_the_loop import (  # type: ignore[import-not-found]
+from patterns.human_in_the_loop import (
     ApprovalDecision,
     ApprovalRequest,
     ApprovalStatus,
@@ -26,7 +26,7 @@ from patterns.human_in_the_loop import (  # type: ignore[import-not-found]
 def test_approval_request_not_expired() -> None:
     req = ApprovalRequest(
         tool_name="delete_file",
-        args={"path": "/tmp/test.txt"},
+        args={"path": "/tmp/test.txt"},  # nosec B108
         agent_id="a1",
         tenant_id="acme",
     )
@@ -36,7 +36,7 @@ def test_approval_request_not_expired() -> None:
 def test_approval_request_expired() -> None:
     req = ApprovalRequest(
         tool_name="delete_file",
-        args={"path": "/tmp/test.txt"},
+        args={"path": "/tmp/test.txt"},  # nosec B108
         agent_id="a1",
         tenant_id="acme",
         expires_at=time.time() - 1,

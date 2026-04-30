@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from patterns.tool_sandboxing import (  # type: ignore[import-not-found]
+from patterns.tool_sandboxing import (
     MultiTenantSandbox,
     SandboxLimits,
     SandboxResult,
@@ -49,8 +49,8 @@ def test_build_tool_script_contains_tool_name() -> None:
 
 
 def test_build_tool_script_embeds_args() -> None:
-    script = _build_tool_script("tool", {"path": "/tmp/test"}, {})
-    assert "/tmp/test" in script
+    script = _build_tool_script("tool", {"path": "/tmp/test"}, {})  # nosec B108
+    assert "/tmp/test" in script  # nosec B108
 
 
 # ---------------------------------------------------------------------------
@@ -66,16 +66,16 @@ async def test_sandbox_runs_simple_script() -> None:
 
     # Create a minimal tool module
     with tempfile.NamedTemporaryFile(
-        mode="w", suffix=".py", delete=False, prefix="test_tool_", dir="/tmp"
+        mode="w", suffix=".py", delete=False, prefix="test_tool_", dir="/tmp"  # nosec B108
     ) as f:
         f.write("""
 def echo(message: str) -> str:
     return f"echo:{message}"
 """)
-        module_path = f.name
+        _module_path = f.name
 
     # We test the sandbox with a direct script approach
-    sandbox = ToolSandbox(
+    _sandbox = ToolSandbox(
         limits=SandboxLimits(cpu_seconds=5, memory_mb=256, process_timeout=10.0),
     )
 
@@ -193,7 +193,7 @@ async def test_multitenant_sandbox_allows_allowlisted_tool() -> None:
             wall_time_seconds=0.01,
         ),
     ):
-        result = await sandbox.run("read_file", {"path": "/tmp/x"}, tenant_id="t")
+        result = await sandbox.run("read_file", {"path": "/tmp/x"}, tenant_id="t")  # nosec B108
         assert result.success is True
 
 
